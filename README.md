@@ -8,3 +8,4 @@
 | ----- | ----- | ----- |
 | Zubair | 2211-035-KHI-DEG | zubair.khatti@xloopdigital.com | 
 |Syed Muhammad Mehmaam | 2211-028-KHI-DEG| syed.mehmaam@xloopdigital.com|
+| Hira Fatima | 2211-012-KHI-DEG | hira.fatima@xloopdigital.com |
