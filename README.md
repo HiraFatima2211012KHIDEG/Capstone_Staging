@@ -1,5 +1,5 @@
 # Capstone Staging
-
+### Check the presence of people more than expected, and owner will take security precautions accordingly
 ## DEG Group 2 (D. Battalion)
 
 ## Group Members
