@@ -1,6 +1,6 @@
 # Capstone Project
 
-## DEG Group 2 Capstone Project
+## DEG Group 2 (D. Battalion)
 
 ## Group Members
 
