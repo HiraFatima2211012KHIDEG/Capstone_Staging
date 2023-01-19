@@ -13,13 +13,15 @@
 | Muhammad Humza | 2211-018-KHI-DEG | mohammad.humza@xloopdigital.com |
 | Muhammad Adnan Khalid | 2211-014-KHI-DEG| mohammad.adnan@xloopdigital.com|
 
-# Contributing Sections
+## Contributing Sections
 
-## Convensions
+### Conventions
 
-Branch Name : firstname
-Floder Name : camelCase
-File Name : camelCase
-Class Name : PascalCase
-Function Name : snake_case
-Variable Name : snake_case
+| Name | Conventions |
+| ----- | ----- |
+| Branch Name | firstname |
+| Floder Name | camelCase |
+| File Name | camelCase |
+| Class Name | PascalCase |
+| Function Name | snake_case |
+| Variable Name | snake_case |
