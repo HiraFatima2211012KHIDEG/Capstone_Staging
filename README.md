@@ -19,7 +19,7 @@
 
 | Name | Conventions |
 | ----- | ----- |
-| Branch Name | firstname |
+| Branch Name | firstname/feature |
 | Floder Name | camelCase |
 | File Name | camelCase |
 | Class Name | PascalCase |
