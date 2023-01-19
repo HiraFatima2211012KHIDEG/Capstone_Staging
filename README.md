@@ -1,4 +1,4 @@
-# Capstone Project
+# Capstone Staging
 
 ## DEG Group 2 (D. Battalion)
 
