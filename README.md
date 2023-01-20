@@ -12,7 +12,7 @@
 | Hira Fatima | 2211-012-KHI-DEG | hira.fatima@xloopdigital.com |
 | Muhammad Humza | 2211-018-KHI-DEG | mohammad.humza@xloopdigital.com |
 | Muhammad Adnan Khalid | 2211-014-KHI-DEG| mohammad.adnan@xloopdigital.com|
-| Anoosha Malik   | 2211-004-KHI-DEG  | anoosha.malik@xloopdigital.com |
+| Anoosha Malik | 2211-004-KHI-DEG  | anoosha.malik@xloopdigital.com |
 
 ## Contributing Sections
 
