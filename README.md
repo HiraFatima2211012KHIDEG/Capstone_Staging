@@ -21,8 +21,8 @@
 | Name | Conventions |
 | ----- | ----- |
 | Branch Name | firstname-feature |
-| Floder Name | camelCase |
-| File Name | camelCase |
+| Floder Name | snake_case |
+| File Name | snake_case |
 | Class Name | PascalCase |
 | Function Name | snake_case |
 | Variable Name | snake_case |
