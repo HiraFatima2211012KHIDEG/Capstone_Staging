@@ -8,4 +8,4 @@ RUN pip3 install -r requirements.txt
 
 ENV PYTHONPATH /app
 
-CMD [ "python3", "etl/app.py"]
+CMD [ "python3", "extract/extract_moisture_carbon_app.py"]
