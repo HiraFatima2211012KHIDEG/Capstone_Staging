@@ -1,7 +1,7 @@
 import logging
 
-from fastapi import FastAPI
 import uvicorn
+from fastapi import FastAPI
 from sensorsmock.service import SensorService
 
 app = FastAPI()
@@ -22,7 +22,6 @@ def get_luxmeter(room_id: str):
 @app.post("/api/collect")
 def collect():
     return {"msg": "ok"}
-
 
 
 @app.on_event("startup")
