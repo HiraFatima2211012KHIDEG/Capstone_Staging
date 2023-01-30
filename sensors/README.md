@@ -1,7 +1,7 @@
 # About sensorsmock serivce
 
 ### sensors:
-Open terminal in `../sensors/` folder
+Open terminal in `sensors/` folder
 
 To **run** container, use:
 
