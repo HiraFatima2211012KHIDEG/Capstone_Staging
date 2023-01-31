@@ -1,0 +1,19 @@
+version: "3.9"
+services:
+  sensorsmock:
+    build: 
+      context: sensors
+    ports:
+      - "3000:3000"
+    environment:
+      - SMART_THERMO_BUCKET=d-battalion
+      - CARBON_SENSE_URL=http://extract_service:4008/collect_carbon_sense
+      - MOISTURE_MATE_URL=http://extract_service:4008/collect_moisture_mate
+      - AWS_ACCESS_KEY_ID=ASIASYJAH4HJNZSLUGHT
+      - AWS_SECRET_ACCESS_KEY=BSuw7OrKltgMkz+r+kOoG1C889lUQVr12bZ9IggO
+      - AWS_SESSION_TOKEN=IQoJb3JpZ2luX2VjECcaCXVzLWVhc3QtMSJHMEUCIQDxzcKprLbNnFBKpRUVQ85xaTPfgmAUr7Ic4q0wh7W92AIgXEjw2yHpP3SFzQenZ2IDq3iFKOM7Syl1KCWggsm1Mmwq3AEIoP//////////ARAAGgwxODk1ODMwNTczNjIiDDEvuB514wn+Tt55DiqwAXqAt8M0ELH68RYBs5Ny8lC7knnepdJOQo4x3S+DMam7ObDI81Kn0W4/5xbjwcWP0dVZ5tsnXKVpNMPfK5g3HvQuF5agFHtNpIvun/tj6mGExMzmeE9hfEEk4hsmIi7S4fgk0ruepuP0xWWNCtrnpauMZO1sfCHhUnWw1wrZtiXgbrgoX8ZMIIsRW6RE0wyQJ/P4y+wlgwC+/xtW7Fyx/mZ5zsCa09FCWup+7sJIaWJxMO3s4p4GOpgB9ME+zh+UzyhO4EGI9ZVybqb8xwDfkquNDP8DioS3B1ODsf9gTuXTGiEDqhPo/KoyQOxWw6l4pti/P3Wb4Rj9BjO8U/KTr7mCHwVm+9gFMrW+CHxvVeSrzgK5+wmyYAutpStkln97Pbx0/JcHzxSEE63dMip9VUbbOvYkr2QNwCItsdwALnL+GSS5hg73ThmoTVIKsZhFrt8=
+  extract_service:
+    build: 
+      context: extract
+    ports:
+      - "4008:4008"
