@@ -10,8 +10,8 @@ services:
       - etl_service
     environment:
       - SMART_THERMO_BUCKET=<your-s3-bucket-name>
-      - CARBON_SENSE_URL=http://extract_service:4008/collect_carbon_sense
-      - MOISTURE_MATE_URL=http://extract_service:4008/collect_moisture_mate
+      - MOISTURE_MATE_URL=http://etl_service:4008/collect_moisture_mate
+      - CARBON_SENSE_URL=http://etl_service:4008/collect_carbon_sense
       - AWS_ACCESS_KEY_ID=<your-access-key-id>
       - AWS_SECRET_ACCESS_KEY=<your-secret-access-key>
       - AWS_SESSION_TOKEN=<your-session-token>
