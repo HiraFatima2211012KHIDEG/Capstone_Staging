@@ -28,15 +28,15 @@ async def collect_moisture_mate(request: Request):
     
 
 
-# @app.post("/collect_carbon_sense")
-# async def collect_carbon_sense(request: Request):
-#     received_data = await request.json()
-#     logger.info(f"Received CarbonSense Data: {received_data}")
-#     try:
-#         record = Producer.send('carbonsense', value=received_data)
-#         logger.info(record)
-#     except:
-#         logger.info('didnt run')
+@app.post("/collect_carbon_sense")
+async def collect_carbon_sense(request: Request):
+    received_data = await request.json()
+    logger.info(f"Received CarbonSense Data: {received_data}")
+    try:
+        record = Producer.send('carbonsense', value=received_data)
+        logger.info(record)
+    except:
+        logger.info('didnt run')
 
 def run_app():
     logging.basicConfig(level=logging.INFO)
