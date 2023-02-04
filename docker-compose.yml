@@ -1,0 +1,19 @@
+version: "3.9"
+services:
+  sensorsmock:
+    build: 
+      context: sensors
+    ports:
+      - "3000:3000"
+    environment:
+      - SMART_THERMO_BUCKET=<your-s3-bucket-name>
+      - CARBON_SENSE_URL=http://extract_service:4008/collect_carbon_sense
+      - MOISTURE_MATE_URL=http://extract_service:4008/collect_moisture_mate
+      - AWS_ACCESS_KEY_ID=<your-access-key-id>
+      - AWS_SECRET_ACCESS_KEY=<your-secret-access-key>
+      - AWS_SESSION_TOKEN=<your-session-token>
+  extract_service:
+    build: 
+      context: extract
+    ports:
+      - "4008:4008"
