@@ -10,14 +10,14 @@ app = FastAPI()
 @app.post("/collect_moisture_mate")
 async def collect_moisture_mate(request: Request):
     moisture_data = await request.json()
-    logger.info(moisture_data)
+    logger.info(f"Received MoistureMate data: {moisture_data}")
     return {"moisture_data": "ok"}
 
 
 @app.post("/collect_carbon_sense")
 async def collect_carbon_sense(request: Request):
     carbon_data = await request.json()
-    logger.info(carbon_data)
+    logger.info(f"Received Carbonsense data: {carbon_data}")
     return {"carbon_data": "ok"}
 
 
