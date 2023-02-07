@@ -1,19 +1,111 @@
 version: "3.9"
 services:
+
+  minio:
+    image: minio/minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      - "MINIO_ACCESS_KEY=Anoosha_Malik"
+      - "MINIO_SECRET_KEY=anooshamalik1234"
+    command: server /data
+
+  createbuckets:
+    image: minio/mc
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/sh -c "
+      /usr/bin/mc alias set d-battalion http://minio:9000 Anoosha_Malik anooshamalik1234;
+      /usr/bin/mc mb d-battalion/thermobucketdatabattalion;
+      /usr/bin/mc policy set public d-battalion/thermobucketdatabattalion;
+      exit 0;
+      "
   sensorsmock:
     build: 
       context: sensors
+    container_name: sensorsmock  
     ports:
-      - "3000:3000"
+      - "3003:3003"
+    depends_on:
+      - extract
+      - minio
     environment:
-      - SMART_THERMO_BUCKET=d-battalion
-      - CARBON_SENSE_URL=http://extract_service:4008/collect_carbon_sense
-      - MOISTURE_MATE_URL=http://extract_service:4008/collect_moisture_mate
-      - AWS_ACCESS_KEY_ID=
-      - AWS_SECRET_ACCESS_KEY=
-      - AWS_SESSION_TOKEN=
-  extract_service:
+      - SMART_THERMO_BUCKET=thermobucketdatabattalion
+      - MOISTURE_MATE_URL=http://extract:4008/collect_moisture_mate
+      - CARBON_SENSE_URL=http://extract:4008/collect_carbon_sense
+      - AWS_ACCESS_KEY_ID=Anoosha_Malik
+      - AWS_SECRET_ACCESS_KEY=anooshamalik1234
+  
+  
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.0.1
+    container_name: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+  
+  kafka:
+    image: confluentinc/cp-kafka:7.0.1
+    container_name: kafka
+    ports:
+      - "9092:9092"
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092,PLAINTEXT_INTERNAL://kafka:29092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 3
+    restart: always
+
+  extract:
     build: 
       context: extract
+    container_name: microservice
+    environment:
+      - KAFKA_BOOTSTRAP_SERVER=kafka:29092
     ports:
       - "4008:4008"
+    depends_on:
+      - kafka
+  lux_meter:
+    build:
+      context: lux_meter
+    container_name: lux_meter
+    ports:
+      - "3007:3007"
+    environment:
+      - KAFKA_BOOTSTRAP_SERVER=kafka:29092
+    depends_on:
+      - sensorsmock
+    restart: always
+
+  init-kafka:
+    image: confluentinc/cp-kafka:6.1.1
+    depends_on:
+      - kafka
+    entrypoint: [ '/bin/sh', '-c' ]
+    command: |
+      "
+      
+      # blocks until kafka is reachable
+      kafka-topics --bootstrap-server kafka:29092 --list
+
+      echo -e 'Creating kafka topics'
+      kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic moisturemate --replication-factor 1 --partitions 1
+      kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic carbonsense --replication-factor 1 --partitions 1
+      kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic luxmeter --replication-factor 1 --partitions 1
+
+      echo -e 'Successfully created the following topics:'
+      kafka-topics --bootstrap-server kafka:29092 --list
+      "  
+      
+networks:
+  broker:
+    driver: bridge
+
