@@ -7,8 +7,8 @@ services:
       - "9000:9000"
       - "9001:9001"
     environment:
-      - "MINIO_ACCESS_KEY=Anoosha_Malik"
-      - "MINIO_SECRET_KEY=anooshamalik1234"
+      - "MINIO_ACCESS_KEY="
+      - "MINIO_SECRET_KEY="
     command: server /data
 
   createbuckets:
@@ -32,11 +32,11 @@ services:
       - extract
       - minio
     environment:
-      - SMART_THERMO_BUCKET=thermobucketdatabattalion
+      - SMART_THERMO_BUCKET=
       - MOISTURE_MATE_URL=http://extract:4008/collect_moisture_mate
       - CARBON_SENSE_URL=http://extract:4008/collect_carbon_sense
-      - AWS_ACCESS_KEY_ID=Anoosha_Malik
-      - AWS_SECRET_ACCESS_KEY=anooshamalik1234
+      - AWS_ACCESS_KEY_ID=
+      - AWS_SECRET_ACCESS_KEY=
   
   
   zookeeper:
