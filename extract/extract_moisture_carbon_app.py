@@ -8,7 +8,7 @@ from time import sleep
 app = FastAPI()
 
 KAFKA_BROKER_URL = os.environ.get('KAFKA_BOOTSTRAP_SERVER')
-Producer = KafkaProducer(
+producer = KafkaProducer(
             bootstrap_servers=KAFKA_BROKER_URL,
             value_serializer=lambda x: json.dumps(x).encode('utf8'),
             api_version=(0, 10, 1)
@@ -20,22 +20,25 @@ import json
 @app.post('/collect_moisture_mate')
 async def collect_moisture_mate(request: Request):
     received_data = await request.json()
+    logger.info(f'Received MoistureMate Data: {record}')
+
     try:
-        record = Producer.send('moisturemate', value=received_data)
-        logger.info(f'Received MoistureMate Data: {record}')
+        record = producer.send('moisturemate', value=received_data)
+        logger.info(f'MoistureMate Data Sent in Kafka: {record}')
         
     except:
-        logger.info('Did not Received MoistureMate Data')
+        logger.info('Failed to send MoistureMate Data in Kafka')
 
 @app.post('/collect_carbon_sense')
 async def collect_carbon_sense(request: Request):
     received_data = await request.json()
+    logger.info(f'Received CarbonSense Data: {record}')
     
     try:
-        record = Producer.send('carbonsense', value=received_data)
-        logger.info(f'Received CarbonSense Data: {record}')
+        record = producer.send('carbonsense', value=received_data)
+        logger.info(f'CarbonSense Data Sent in Kafka: {record}')
     except:
-        logger.info('Did not Received CarbonSense Data')
+        logger.info('Failed to send CarbonSense Data in Kafka')
     
 
 def run_app():
