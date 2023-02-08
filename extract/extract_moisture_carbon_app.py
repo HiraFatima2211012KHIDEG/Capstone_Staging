@@ -2,6 +2,7 @@ import logging
 
 import uvicorn
 from fastapi import FastAPI, Request
+
 logger = logging.getLogger()
 
 app = FastAPI()
