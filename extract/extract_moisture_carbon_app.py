@@ -5,6 +5,8 @@ import uvicorn
 from fastapi import FastAPI, Request
 from kafka import KafkaProducer
 
+logger = logging.getLogger()
+
 app = FastAPI()
 
 KAFKA_BROKER_URL = os.environ.get("KAFKA_BOOTSTRAP_SERVER")
