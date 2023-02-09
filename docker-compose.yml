@@ -86,4 +86,3 @@ services:
 networks:
   broker:
     driver: bridge
-
