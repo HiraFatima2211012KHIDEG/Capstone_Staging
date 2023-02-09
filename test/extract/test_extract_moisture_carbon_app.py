@@ -11,7 +11,7 @@ class TestData(TestCase):
     def test_collect_moisturemate_response_data_log(self):
         with self.assertLogs() as captured:
             response = client.post(
-                f"/collect_moisture_mate",
+                "/collect_moisture_mate",
                 json={"test_key": "test_value"},
             )
         assert response.status_code == 200
@@ -26,7 +26,7 @@ class TestData(TestCase):
     def test_collect_carbonsense_response_data_log(self):
         with self.assertLogs() as captured:
             response = client.post(
-                f"/collect_carbon_sense",
+                "/collect_carbon_sense",
                 json={"test_key": "test_value"},
             )
         assert response.status_code == 200
@@ -41,7 +41,7 @@ class TestData(TestCase):
     def test_collect_invalidendpoint_response_data_log(self):
 
         response = client.post(
-            f"/invalid_endpoint",
+            "/invalid_endpoint",
             json={"test_key": "test_value"},
         )
         assert response.status_code == 404
