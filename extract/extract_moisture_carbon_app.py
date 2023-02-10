@@ -1,7 +1,7 @@
 import logging
 import os
-
 import uvicorn
+import json
 from fastapi import FastAPI, Request
 from kafka import KafkaProducer
 
@@ -16,31 +16,28 @@ producer = KafkaProducer(
     api_version=(0, 10, 1),
 )
 
-logger = logging.getLogger()
-import json
-
-
 @app.post("/collect_moisture_mate")
 async def collect_moisture_mate(request: Request):
-    received_data = await request.json()
-    logger.info(f"Received MoistureMate Data: {record}")
+    moisture_data = await request.json()
+    logger.info(f"Received MoistureMate data: {moisture_data}")
 
     try:
-        record = producer.send("moisturemate", value=received_data)
-        logger.info(f"MoistureMate Data Sent in Kafka: {record}")
+        moisture_record = producer.send("moisturemate", value=moisture_data)
+        logger.info(f"MoistureMate Data Sent in Kafka: {moisture_record}")
 
     except:
         logger.info("Failed to send MoistureMate Data in Kafka")
 
 
+
 @app.post("/collect_carbon_sense")
 async def collect_carbon_sense(request: Request):
-    received_data = await request.json()
-    logger.info(f"Received CarbonSense Data: {record}")
+    carbon_data = await request.json()
+    logger.info(f"Received Carbonsense data: {carbon_data}")
 
     try:
-        record = producer.send("carbonsense", value=received_data)
-        logger.info(f"CarbonSense Data Sent in Kafka: {record}")
+        carbon_record = producer.send("carbonsense", value=carbon_data)
+        logger.info(f"CarbonSense Data Sent in Kafka: {carbon_record}")
     except:
         logger.info("Failed to send CarbonSense Data in Kafka")
 
