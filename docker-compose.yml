@@ -15,7 +15,7 @@ services:
       - AWS_ACCESS_KEY_ID=<your-access-key-id>
       - AWS_SECRET_ACCESS_KEY=<your-secret-access-key>
       - AWS_SESSION_TOKEN=<your-session-token>
-  
+ 
   zookeeper:
     image: confluentinc/cp-zookeeper:7.0.1
     container_name: zookeeper
@@ -70,7 +70,6 @@ services:
     entrypoint: [ '/bin/sh', '-c' ]
     command: |
       "
-      
       # blocks until kafka is reachable
       kafka-topics --bootstrap-server kafka:29092 --list
 
