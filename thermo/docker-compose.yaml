@@ -1,0 +1,56 @@
+version: "3.9"
+services:
+  minio:
+    image: minio/minio
+    volumes:
+      - /data_store:/data
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      -  MINIO_ACCESS_KEY=Anoosha_Malik
+      -  MINIO_SECRET_KEY=anooshamalik1234
+    command: server /data
+  createbuckets:
+    image: minio/mc
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/sh -c "
+      /usr/bin/mc alias set d-battalion http://minio:9000 Anoosha_Malik anooshamalik1234;
+      /usr/bin/mc mb d-battalion/thermobucketdatabattalion;
+      /usr/bin/mc policy set public d-battalion/thermobucketdatabattalion;
+      exit 0;
+      "
+  thermo:
+    build:
+      context: thermo
+    container_name: thermo
+    ports:
+      - "3007:3007"
+    environment:
+      - KAFKA_BOOTSTRAP_SERVER=kafka:29092
+    depends_on:
+      - sensorsmock
+      - kafka
+
+    restart: always
+  init-kafka:
+    image: confluentinc/cp-kafka:6.1.1
+    depends_on:
+      - kafka
+    entrypoint: [ '/bin/sh', '-c' ]
+    command: |
+      "
+      # blocks until kafka is reachable
+      kafka-topics --bootstrap-server kafka:29092 --list
+      echo -e 'Creating kafka topics'
+      kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic thermo --replication-factor 1 --partitions 1
+      echo -e 'Successfully created the following topics:'
+      kafka-topics --bootstrap-server kafka:29092 --list
+      "  
+      
+networks:
+  broker:
+    driver: bridge
+
