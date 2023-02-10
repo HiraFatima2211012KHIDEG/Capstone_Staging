@@ -10,7 +10,7 @@ logger = logging.getLogger()
 
 app = FastAPI()
 
-KAFKA_BROKER_URL = os.environ.get("KAFKA_BOOTSTRAP_SERVER")
+KAFKA_BROKER_URL = os.environ.get("KAFKA_BOOTSTRAP_SERVER", "kafka:29092")
 producer = KafkaProducer(
     bootstrap_servers=KAFKA_BROKER_URL,
     value_serializer=lambda x: json.dumps(x).encode("utf8"),
@@ -30,6 +30,8 @@ async def collect_moisture_mate(request: Request):
     except:
         logger.info("Failed to send MoistureMate Data in Kafka")
 
+    return {"moisture_data": "ok"}
+
 
 @app.post("/collect_carbon_sense")
 async def collect_carbon_sense(request: Request):
@@ -41,6 +43,8 @@ async def collect_carbon_sense(request: Request):
         logger.info(f"CarbonSense Data Sent in Kafka: {carbon_record}")
     except:
         logger.info("Failed to send CarbonSense Data in Kafka")
+
+    return {"carbon_data": "ok"}
 
 
 def run_app():
