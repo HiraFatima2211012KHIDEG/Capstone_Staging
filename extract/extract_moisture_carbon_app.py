@@ -25,6 +25,8 @@ async def collect_moisture_mate(request: Request):
     except Exception as err:
         logger.info(f"Failed to send MoistureMate Data in Kafka: {err}.")
 
+    return {"moisture_data": "ok"}
+
 
 @app.post("/collect_carbon_sense")
 async def collect_carbon_sense(request: Request):
@@ -36,6 +38,8 @@ async def collect_carbon_sense(request: Request):
         logger.info(f"CarbonSense Data Sent in Kafka: {carbon_record}")
     except Exception as err:
         logger.info(f"Failed to send CarbonSense Data in Kafka: {err}.")
+
+    return {"carbon_data": "ok"}
 
 
 def run_app():
