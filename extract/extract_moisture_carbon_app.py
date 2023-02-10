@@ -1,7 +1,8 @@
+import json
 import logging
 import os
+
 import uvicorn
-import json
 from fastapi import FastAPI, Request
 from kafka import KafkaProducer
 
@@ -16,6 +17,7 @@ producer = KafkaProducer(
     api_version=(0, 10, 1),
 )
 
+
 @app.post("/collect_moisture_mate")
 async def collect_moisture_mate(request: Request):
     moisture_data = await request.json()
@@ -27,7 +29,6 @@ async def collect_moisture_mate(request: Request):
 
     except:
         logger.info("Failed to send MoistureMate Data in Kafka")
-
 
 
 @app.post("/collect_carbon_sense")
