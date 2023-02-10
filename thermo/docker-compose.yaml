@@ -8,8 +8,8 @@ services:
       - "9000:9000"
       - "9001:9001"
     environment:
-      -  MINIO_ACCESS_KEY=Anoosha_Malik
-      -  MINIO_SECRET_KEY=anooshamalik1234
+      -  MINIO_ACCESS_KEY=user_name
+      -  MINIO_SECRET_KEY=user_[password
     command: server /data
   createbuckets:
     image: minio/mc
