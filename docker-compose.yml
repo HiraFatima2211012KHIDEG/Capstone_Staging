@@ -9,13 +9,13 @@ services:
     depends_on:
       - extract
     environment:
-      - SMART_THERMO_BUCKET=<your-s3-bucket-name>
-      - MOISTURE_MATE_URL=http://etl_service:4008/collect_moisture_mate
-      - CARBON_SENSE_URL=http://etl_service:4008/collect_carbon_sense
-      - AWS_ACCESS_KEY_ID=<your-access-key-id>
-      - AWS_SECRET_ACCESS_KEY=<your-secret-access-key>
-      - AWS_SESSION_TOKEN=<your-session-token>
- 
+      #- SMART_THERMO_BUCKET=<your-s3-bucket-name>
+      - MOISTURE_MATE_URL=http://extract:4008/collect_moisture_mate
+      - CARBON_SENSE_URL=http://extract:4008/collect_carbon_sense
+      #- AWS_ACCESS_KEY_ID=<your-access-key-id>
+      #- AWS_SECRET_ACCESS_KEY=<your-secret-access-key>
+      #- AWS_SESSION_TOKEN=<your-session-token>
+  
   zookeeper:
     image: confluentinc/cp-zookeeper:7.0.1
     container_name: zookeeper
@@ -59,6 +59,7 @@ services:
       - "3007:3007"
     environment:
       - KAFKA_BOOTSTRAP_SERVER=kafka:29092
+      - ENDPOINT_URL=http://sensorsmock:3003/api/luxmeter/{}
     depends_on:
       - sensorsmock
     restart: always
@@ -70,6 +71,7 @@ services:
     entrypoint: [ '/bin/sh', '-c' ]
     command: |
       "
+      
       # blocks until kafka is reachable
       kafka-topics --bootstrap-server kafka:29092 --list
 
@@ -81,7 +83,7 @@ services:
       echo -e 'Successfully created the following topics:'
       kafka-topics --bootstrap-server kafka:29092 --list
       "  
-      
+
 networks:
   broker:
     driver: bridge
