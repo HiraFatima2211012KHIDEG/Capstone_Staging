@@ -1,44 +1,55 @@
-import logging
-from time import sleep
-from fastapi import FastAPI
-import uvicorn
-import requests
 import json
+import logging
 import os
+
+import requests
+import uvicorn
+from fastapi import FastAPI
 from fastapi_utils.tasks import repeat_every
 from kafka import KafkaProducer
 
 app = FastAPI()
 logger = logging.getLogger()
 
-KAFKA_BROKER_URL = os.environ.get('KAFKA_BOOTSTRAP_SERVER')
-Producer = KafkaProducer(
-            bootstrap_servers=KAFKA_BROKER_URL,
-            value_serializer=lambda x: json.dumps(x).encode('utf8'),
-            api_version=(0, 10, 1)
-        )
 
-@app.on_event('startup')
+KAFKA_BROKER_URL = os.environ.get("KAFKA_BOOTSTRAP_SERVER")
+URL = os.environ.get("ENDPOINT_URL")
+
+producer = KafkaProducer(
+    bootstrap_servers=KAFKA_BROKER_URL,
+    value_serializer=lambda x: json.dumps(x).encode("utf8"),
+    api_version=(0, 10, 1),
+)
+
+
+@app.on_event("startup")
 @repeat_every(seconds=60, wait_first=True)
 def periodic():
-    for i in ['kitchen', 'bedroom', 'bathroom', 'living_room']:
+    for room in ["kitchen", "bedroom", "bathroom", "living_room"]:
+        url = URL.format(room)
+        producer_luxmeter(url)
 
-        url = f'http://sensorsmock:3003/api/luxmeter/{i}'
-        transform(url)
 
-
-def transform(url: str):
-    response = requests.get(url).json()
-    res = dict((k, response[k]) for k in ['measurements']
-        if k in response)['measurements'][-1]
-    response['measurements'] = res
-    
+def producer_luxmeter(url):
     try:
-        record = Producer.send('luxmeter', value=response)
-        logger.info(f'Received LuxMeter Data: {record}')
-    except:
-        logger.info('Did not Received LuxMeter Data')
-    
+        record = producer.send("luxmeter", value=get_data(url))
+        logger.info(f"Send luxmeter data to producer: {record}")
+    except Exception as err:
+        logger.info("Failed to send LuxMeter Data to kafka producer, error:", {err})
+
+
+def get_data(url: str):
+    response = requests.get(url).json()
+    logger.info(f"Get data of luxmeter: {response}")
+    return get_latest_record(response)
+
+
+def get_latest_record(luxmeter_data):
+    res = luxmeter_data["measurements"][-1]
+    luxmeter_data["measurements"] = res
+    logger.info(f"Get latest record of luxmeter: {luxmeter_data}")
+    return luxmeter_data
+
 
 def run_app():
     logging.basicConfig(level=logging.INFO)
