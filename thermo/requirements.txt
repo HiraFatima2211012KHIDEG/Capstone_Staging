@@ -4,7 +4,7 @@ httpx==0.23.3
 boto3==1.26.41
 pandas==1.5.2
 s3fs==0.4.2
-fastapi-utils
-requests
+fastapi-utils==0.2.1
+requests==2.7.0
 kafka-python==2.0.1
-minio
+minio==3.0
