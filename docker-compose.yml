@@ -1,19 +1,88 @@
 version: "3.9"
 services:
   sensorsmock:
-    build: 
+    build:
       context: sensors
+    container_name: sensorsmock  
     ports:
-      - "3000:3000"
+      - "3003:3003"
+    depends_on:
+      - extract
     environment:
-      - SMART_THERMO_BUCKET=d-battalion
-      - CARBON_SENSE_URL=http://extract_service:4008/collect_carbon_sense
-      - MOISTURE_MATE_URL=http://extract_service:4008/collect_moisture_mate
-      - AWS_ACCESS_KEY_ID=
-      - AWS_SECRET_ACCESS_KEY=
-      - AWS_SESSION_TOKEN=
-  extract_service:
+      - SMART_THERMO_BUCKET=<your-s3-bucket-name>
+      - MOISTURE_MATE_URL=http://extract:4008/collect_moisture_mate
+      - CARBON_SENSE_URL=http://extract:4008/collect_carbon_sense
+      - AWS_ACCESS_KEY_ID=<your-access-key-id>
+      - AWS_SECRET_ACCESS_KEY=<your-secret-access-key>
+      - AWS_SESSION_TOKEN=<your-session-token>
+  
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.0.1
+    container_name: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+  
+  kafka:
+    image: confluentinc/cp-kafka:7.0.1
+    container_name: kafka
+    ports:
+      - "9092:9092"
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092,PLAINTEXT_INTERNAL://kafka:29092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 3
+    restart: always
+
+  extract:
     build: 
       context: extract
+    container_name: microservice
+    environment:
+      - KAFKA_BOOTSTRAP_SERVER=kafka:29092
     ports:
       - "4008:4008"
+    depends_on:
+      - kafka
+      
+  lux_meter:
+    build:
+      context: lux_meter
+    container_name: lux_meter
+    ports:
+      - "3007:3007"
+    environment:
+      - KAFKA_BOOTSTRAP_SERVER=kafka:29092
+      - ENDPOINT_URL=http://sensorsmock:3003/api/luxmeter/{}
+    depends_on:
+      - sensorsmock
+    restart: always
+
+  init-kafka:
+    image: confluentinc/cp-kafka:6.1.1
+    depends_on:
+      - kafka
+    entrypoint: [ '/bin/sh', '-c' ]
+    command: |
+      "
+      # blocks until kafka is reachable
+      kafka-topics --bootstrap-server kafka:29092 --list
+
+      echo -e 'Creating kafka topics'
+      kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic moisturemate --replication-factor 1 --partitions 1
+      kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic carbonsense --replication-factor 1 --partitions 1
+      kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic luxmeter --replication-factor 1 --partitions 1
+
+      echo -e 'Successfully created the following topics:'
+      kafka-topics --bootstrap-server kafka:29092 --list
+      "  
+
+networks:
+  broker:
+    driver: bridge
