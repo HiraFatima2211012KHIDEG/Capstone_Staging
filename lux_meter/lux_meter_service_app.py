@@ -35,7 +35,7 @@ def producer_luxmeter(url):
         record = producer.send("luxmeter", value=get_data(url))
         logger.info(f"Send luxmeter data to producer: {record}")
     except Exception as err:
-        logger.info("Failed to send LuxMeter Data to kafka producer, error:", {err})
+        logger.exception("Failed to send LuxMeter Data to kafka producer, error:", {err})
 
 
 def get_data(url: str):
@@ -47,7 +47,6 @@ def get_data(url: str):
 def get_latest_record(luxmeter_data):
     res = luxmeter_data["measurements"][-1]
     luxmeter_data["measurements"] = res
-    logger.info(f"Get latest record of luxmeter: {luxmeter_data}")
     return luxmeter_data
 
 
