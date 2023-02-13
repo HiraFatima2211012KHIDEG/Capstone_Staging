@@ -9,12 +9,12 @@ services:
     depends_on:
       - extract
     environment:
-      - SMART_THERMO_BUCKET=d-battalion
+      - SMART_THERMO_BUCKET=<your-s3-bucket-name>
       - MOISTURE_MATE_URL=http://extract:4008/collect_moisture_mate
       - CARBON_SENSE_URL=http://extract:4008/collect_carbon_sense
-      - AWS_ACCESS_KEY_ID=
-      - AWS_SECRET_ACCESS_KEY=
-      - AWS_SESSION_TOKEN=
+      - AWS_ACCESS_KEY_ID=<your-access-key-id>
+      - AWS_SECRET_ACCESS_KEY=<your-secret-access-key>
+      - AWS_SESSION_TOKEN=<your-session-token>
   
   zookeeper:
     image: confluentinc/cp-zookeeper:7.0.1
@@ -50,6 +50,19 @@ services:
       - "4008:4008"
     depends_on:
       - kafka
+      
+  lux_meter:
+    build:
+      context: lux_meter
+    container_name: lux_meter
+    ports:
+      - "3007:3007"
+    environment:
+      - KAFKA_BOOTSTRAP_SERVER=kafka:29092
+      - ENDPOINT_URL=http://sensorsmock:3003/api/luxmeter/{}
+    depends_on:
+      - sensorsmock
+    restart: always
 
   init-kafka:
     image: confluentinc/cp-kafka:6.1.1
@@ -58,18 +71,18 @@ services:
     entrypoint: [ '/bin/sh', '-c' ]
     command: |
       "
-      # blocks unti0l kafka is reachable
+      # blocks until kafka is reachable
       kafka-topics --bootstrap-server kafka:29092 --list
 
       echo -e 'Creating kafka topics'
       kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic moisturemate --replication-factor 1 --partitions 1
       kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic carbonsense --replication-factor 1 --partitions 1
+      kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic luxmeter --replication-factor 1 --partitions 1
 
       echo -e 'Successfully created the following topics:'
       kafka-topics --bootstrap-server kafka:29092 --list
       "  
-      
+
 networks:
   broker:
     driver: bridge
-
