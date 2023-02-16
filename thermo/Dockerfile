@@ -9,4 +9,4 @@ COPY . .
 
 ENV PYTHONPATH /app
 
-CMD [ "python3","boto.py"]
+CMD [ "python3","thermosense_service.py"]

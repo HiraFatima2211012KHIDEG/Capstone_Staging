@@ -1,19 +1,121 @@
 version: "3.9"
 services:
+
+  minio:
+    image: minio/minio
+    volumes:
+      - /data_store:/data
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
+      - MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
+    command: server /data
+
+  bucket_creation:
+    image: minio/mc
+    container_name: bucket_creation  
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/sh -c "
+      /usr/bin/mc alias set ${MINIO_ALIAS} http://minio:9000 ${MINIO_ACCESS_KEY} ${MINIO_SECRET_KEY};
+      /usr/bin/mc mb ${MINIO_ALIAS}/${SMART_THERMO_BUCKET};
+      /usr/bin/mc policy set public ${MINIO_ALIAS}/${SMART_THERMO_BUCKET};
+      exit 0;
+      "
+
   sensorsmock:
     build: 
       context: sensors
+    container_name: sensorsmock  
     ports:
-      - "3000:3000"
+      - "3003:3003"
+    depends_on:
+      - carbon_moisture_data_extractor
+      - minio
     environment:
-      - SMART_THERMO_BUCKET=d-battalion
-      - CARBON_SENSE_URL=http://extract_service:4008/collect_carbon_sense
-      - MOISTURE_MATE_URL=http://extract_service:4008/collect_moisture_mate
-      - AWS_ACCESS_KEY_ID=
-      - AWS_SECRET_ACCESS_KEY=
-      - AWS_SESSION_TOKEN=
-  extract_service:
+      - SMART_THERMO_BUCKET=${SMART_THERMO_BUCKET}
+      - MOISTURE_MATE_URL=http://carbon_moisture_data_extractor:4008/collect_moisture_mate
+      - CARBON_SENSE_URL=http://carbon_moisture_data_extractor:4008/collect_carbon_sense
+      - AWS_ACCESS_KEY_ID=${MINIO_ACCESS_KEY}
+      - AWS_SECRET_ACCESS_KEY=${MINIO_SECRET_KEY}
+  
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.0.1
+    container_name: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    
+  kafka:
+    image: confluentinc/cp-kafka:7.0.1
+    container_name: kafka
+    ports:
+      - "9092:9092"
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092,PLAINTEXT_INTERNAL://kafka:29092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 3
+    restart: always
+
+  carbon_moisture_data_extractor:
     build: 
       context: extract
+    container_name: carbon_moisture_data_extractor
+    environment:
+      - KAFKA_BOOTSTRAP_SERVER=kafka:29092
     ports:
       - "4008:4008"
+    depends_on:
+      - kafka
+
+  thermo_sense_extractor:
+    build:
+      context: thermo
+    container_name: thermo_sense_extractor
+    ports:
+      - "3010:3010"
+    environment:
+      - KAFKA_BOOTSTRAP_SERVER=kafka:29092
+      - SMART_THERMO_BUCKET=${SMART_THERMO_BUCKET}
+      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
+      - MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
+      - ENDPOINT_URL=http://minio:9000
+    depends_on:
+      - minio
+      - sensorsmock
+      - kafka
+
+  topics_creation:
+    image: confluentinc/cp-kafka:6.1.1
+    container_name: topics_creation
+    depends_on:
+      - kafka
+    entrypoint: [ '/bin/sh', '-c' ]
+    command: |
+      "
+      # blocks until kafka is reachable
+      kafka-topics --bootstrap-server kafka:29092 --list
+
+      echo -e 'Creating kafka topics'
+      kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic moisturemate --replication-factor 1 --partitions 1
+      kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic carbonsense --replication-factor 1 --partitions 1
+      kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic luxmeter --replication-factor 1 --partitions 1
+      kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic thermo --replication-factor 1 --partitions 1
+
+      echo -e 'Successfully created the following topics:'
+      kafka-topics --bootstrap-server kafka:29092 --list
+      " 
+
+networks:
+  broker:
+    driver: bridge
+
