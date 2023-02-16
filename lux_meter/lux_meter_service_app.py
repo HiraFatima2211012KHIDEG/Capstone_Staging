@@ -49,14 +49,14 @@ def get_latest_record(luxmeter_data):
 
 
 def run_app():
-    producer = KafkaProducer(
-        bootstrap_servers=KAFKA_BROKER_URL,
-        value_serializer=lambda x: json.dumps(x).encode("utf8"),
-        api_version=(0, 10, 1),
-    )
     logging.basicConfig(level=logging.INFO)
     uvicorn.run(app, host="0.0.0.0", port=3007)
 
 
 if __name__ == "__main__":
+    producer = KafkaProducer(
+        bootstrap_servers=KAFKA_BROKER_URL,
+        value_serializer=lambda x: json.dumps(x).encode("utf8"),
+        api_version=(0, 10, 1),
+    )
     run_app()
