@@ -15,11 +15,7 @@ logger = logging.getLogger()
 KAFKA_BROKER_URL = os.environ.get("KAFKA_BOOTSTRAP_SERVER")
 URL = os.environ.get("ENDPOINT_URL")
 
-producer = KafkaProducer(
-    bootstrap_servers=KAFKA_BROKER_URL,
-    value_serializer=lambda x: json.dumps(x).encode("utf8"),
-    api_version=(0, 10, 1),
-)
+producer = None
 
 
 @app.on_event("startup")
@@ -35,7 +31,9 @@ def producer_luxmeter(url):
         record = producer.send("luxmeter", value=get_data(url))
         logger.info(f"Send luxmeter data to producer: {record}")
     except Exception as err:
-        logger.exception(f"Failed to send LuxMeter Data to kafka producer, error: {err}")
+        logger.exception(
+            f"Failed to send LuxMeter Data to kafka producer, error: {err}"
+        )
 
 
 def get_data(url: str):
@@ -56,4 +54,9 @@ def run_app():
 
 
 if __name__ == "__main__":
+    producer = KafkaProducer(
+        bootstrap_servers=KAFKA_BROKER_URL,
+        value_serializer=lambda x: json.dumps(x).encode("utf8"),
+        api_version=(0, 10, 1),
+    )
     run_app()

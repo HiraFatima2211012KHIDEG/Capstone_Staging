@@ -5,7 +5,7 @@ services:
       context: sensors
     container_name: sensorsmock  
     ports:
-      - "3003:3003"
+      - "3000:3000"
     depends_on:
       - extract
     environment:
@@ -59,7 +59,7 @@ services:
       - "3007:3007"
     environment:
       - KAFKA_BOOTSTRAP_SERVER=kafka:29092
-      - ENDPOINT_URL=http://sensorsmock:3003/api/luxmeter/{}
+      - ENDPOINT_URL=http://sensorsmock:3000/api/luxmeter/{}
     depends_on:
       - sensorsmock
     restart: always
