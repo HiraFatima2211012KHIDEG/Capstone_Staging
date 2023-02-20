@@ -82,6 +82,15 @@ services:
       echo -e 'Successfully created the following topics:'
       kafka-topics --bootstrap-server kafka:29092 --list
       "  
+  
+  flask_service:
+    build:
+      context: ./frontend
+    container_name: flask_service
+    ports:
+      - "5000:5000"
+    depends_on:
+      - kafka
 
 networks:
   broker:
