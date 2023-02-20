@@ -63,6 +63,17 @@ services:
     depends_on:
       - sensorsmock
     restart: always
+  ml-deployment:
+    image: ml-deployment
+    build: 
+      context: .
+      dockerfile: ./ML-service/Dockerfile
+    container_name: ml-deployment
+    environment:
+      - KAFKA_BOOTSTRAP_SERVER=kafka:29092
+      - SAVED_MODEL=saved_model/model.pkl
+    depends_on:
+      - kafka
 
   init-kafka:
     image: confluentinc/cp-kafka:6.1.1
@@ -86,3 +97,4 @@ services:
 networks:
   broker:
     driver: bridge
+    
