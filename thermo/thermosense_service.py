@@ -41,16 +41,14 @@ async def send_data_to_kafka():
     try:
         data = minio.get_object(Bucket=BUCKET, Key=prev_minute_key)
     except:
-        logger.info(f"No data found for previous minute ({prev_minute}).")
+        logger.error(f"No data found for previous minute ({prev_minute}).")
         return
 
-    initial_df = pd.read_csv(data["Body"], index_col=[0])
+    initial_df = pd.read_csv(data["Body"], index_col=[0]).to_json()
 
     logger.info(f"Retrieved smart thermo data from MinIO s3 bucket: {initial_df}")
-    initial_df_json = initial_df.to_json()
-    final_df = json.loads(initial_df_json)
 
-    df = pd.DataFrame(final_df)
+    df = pd.DataFrame(json.loads(initial_df_json))
 
     new_data = df.to_dict(orient="records")
     for row_data in new_data:
@@ -59,7 +57,7 @@ async def send_data_to_kafka():
             producer.flush()
             logger.info(f"Smart thermo sense data sent to kafka topic: {thermo}")
         except Exception as err:
-            logger.info(f"Failed to send thermo sensse Data in Kafka: {err}.")
+            logger.error(f"Failed to send thermo sensse Data in Kafka: {err}.")
 
 
 def run_app():
