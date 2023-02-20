@@ -14,13 +14,13 @@ SAVED_MODEL = os.environ.get("SAVED_MODEL")
 model = pickle.load(open(SAVED_MODEL, "rb"))
 
 
-def predicted_data():
+def predicted_data(consumer, producer):
     for message in consumer:
-        print(f"Received message: {message.value}")
+        logger.info(f"Received message: {message.value}")
         data = json.loads(message.value)
         result = convert_to_json(add_predictions(data))
-        print(f"predicted data: {result}")
-        send_data_to_producer(result)
+        logger.info(f"predicted data: {result}")
+        send_data_to_producer(result, producer)
 
 
 def add_predictions(json_data):
@@ -41,13 +41,13 @@ def convert_to_json(df):
     return json_predictions
 
 
-def send_data_to_producer(data):
+def send_data_to_producer(data, producer):
     try:
         record = producer.send("predicted_data", value=data)
-        print(f"predicted data sent to kafka topic: {record}")
+        logger.info(f"predicted data sent to kafka topic: {record}")
         producer.flush()
     except Exception as err:
-        print(f"Did not Received predicted_data into kafka topic, error:", {err})
+        logger.error(f"Did not Received predicted_data into kafka topic, error:", {err})
 
 
 if __name__ == "__main__":
@@ -68,4 +68,4 @@ if __name__ == "__main__":
         api_version=(0, 10, 1),
         acks=1,
     )
-    predicted_data()
+    predicted_data(consumer, producer)
