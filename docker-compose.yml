@@ -45,7 +45,7 @@ services:
       context: extract
     container_name: microservice
     environment:
-      - KAFKA_BOOTSTRAP_SERVER=kafka:29092
+      - KAFKA_BOOTSTRAP_SERVER=kafka:29092ML
     ports:
       - "4008:4008"
     depends_on:
@@ -67,7 +67,7 @@ services:
     image: ml-deployment
     build: 
       context: .
-      dockerfile: ./ML-service/Dockerfile
+      dockerfile: ./ml_service/Dockerfile
     container_name: ml-deployment
     environment:
       - KAFKA_BOOTSTRAP_SERVER=kafka:29092
