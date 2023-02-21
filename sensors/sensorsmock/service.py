@@ -60,9 +60,12 @@ class SensorService:
                 for room, measurement in sample.items()
             ]
         )
-
-        storage_opts = {'client_kwargs': {'endpoint_url': 'http://minio:9000'}}
-        df.to_csv(f"s3://{self._smart_thermo_bucket}/smart_thermo/{date}.csv" , storage_options=storage_opts)
+        
+        storage_opts = {"client_kwargs": {"endpoint_url": "http://minio:9000"}}
+        df.to_csv(
+            f"s3://{self._smart_thermo_bucket}/smart_thermo/{date}.csv",
+            storage_options=storage_opts,
+        )
 
     async def send_moisture_mate(self, date: str, sample: Dict[str, Measurement]):
         for room, measurement in sample.items():
