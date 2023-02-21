@@ -45,7 +45,7 @@ services:
       context: extract
     container_name: microservice
     environment:
-      - KAFKA_BOOTSTRAP_SERVER=kafka:29092ML
+      - KAFKA_BOOTSTRAP_SERVER=kafka:29092
     ports:
       - "4008:4008"
     depends_on:
@@ -71,7 +71,7 @@ services:
     container_name: ml-deployment
     environment:
       - KAFKA_BOOTSTRAP_SERVER=kafka:29092
-      - SAVED_MODEL=saved_model/model.pkl
+      - SAVED_MODEL=ml_service/saved_model/model.pkl
     depends_on:
       - kafka
 

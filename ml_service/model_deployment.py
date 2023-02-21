@@ -47,7 +47,7 @@ def send_data_to_producer(data, producer):
         logger.info(f"predicted data sent to kafka topic: {record}")
         producer.flush()
     except Exception as err:
-        logger.error(f"Did not Received predicted_data into kafka topic, error:", {err})
+        logger.error(f"Failed to send predicted_data to kafka topic, error:", {err})
 
 
 if __name__ == "__main__":
