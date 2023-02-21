@@ -47,19 +47,11 @@ after setup your session token, run:
 ~~~
 docker compose up
 ~~~
-### extract:
+## Running the Application
 
-`extract_moisture_carbon_app.py` is a microservice only for post requests.
+To start the application, run the start.sh shell script:
+~~~
+sh initialize.sh
+~~~
 
----
-
-### sensors:
-Open terminal in `sensors/` folder
-To **run** container, use:
-```docker compose up```
-To run container in **detached mode**, use `-d`:
-```docker compose up -d```
-___
-### sensorsmock:
-`app.py` basically **run** the API on localhost with `port: 3000` and easily accessed by FastAPI built-in **documentation**, run this on browser:
-```0.0.0.0:3000/docs```
+This will start the Kafka broker service, wait for 20 seconds, and then start the other services.

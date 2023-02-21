@@ -60,7 +60,7 @@ class SensorService:
                 for room, measurement in sample.items()
             ]
         )
-
+        
         storage_opts = {"client_kwargs": {"endpoint_url": "http://minio:9000"}}
         df.to_csv(
             f"s3://{self._smart_thermo_bucket}/smart_thermo/{date}.csv",
