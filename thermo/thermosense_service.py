@@ -44,11 +44,9 @@ async def send_data_to_kafka():
         logger.error(f"No data found for previous minute ({prev_minute}).")
         return
 
-    initial_df = pd.read_csv(data["Body"], index_col=[0]).to_json()
+    df = pd.read_csv(data["Body"], index_col=[0]).to_json()
 
-    logger.info(f"Retrieved smart thermo data from MinIO s3 bucket: {initial_df}")
-
-    df = pd.DataFrame(json.loads(initial_df_json))
+    logger.info(f"Retrieved smart thermo data from MinIO s3 bucket: {df}")
 
     new_data = df.to_dict(orient="records")
     for row_data in new_data:
